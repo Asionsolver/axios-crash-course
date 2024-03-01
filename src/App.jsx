@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-// import api from "./api/api";
-import axios from "axios";
+import api from "./api/api";
 import AddPost from "./components/AddPost";
 import EditPost from "./components/EditPost.jsx";
 import Posts from "./components/Post";
@@ -17,71 +16,50 @@ export default function App() {
       const id = posts.length ? Number(posts[posts.length - 1].id) + 1 : 1;
 
       const finalPost = { id: id.toString(), ...newPost };
-      const response = await axios.post(
-        "http://localhost:8000/post",
-        finalPost
-      );
+      const response = await api.post("/post", finalPost);
 
       setPosts([...posts, response.data]);
     } catch (error) {
-      if (error.response) {
-        // error came from the server
-        setError(
-          `Error from server: status ${error.response.status} - message ${error.response.data}`
-        );
-      } else {
-        // network error, did not reach to the server
-        setError(error.message);
-      }
+      setError(error.message);
     }
   };
 
   const handleDeletePost = async (postId) => {
     if (confirm("Are you sure you want to delete the post?")) {
       try {
-        await axios.delete(`http://localhost:8000/post/${postId}`);
+        await api.delete(`/post/${postId}`);
         const newPosts = posts.filter((post) => post.id !== postId);
         setPosts(newPosts);
       } catch (error) {
-        if (error.response) {
-          // error came from the server
-          setError(
-            `Error from server: status ${error.response.status} - message ${error.response.data}`
-          );
-        } else {
-          // network error, did not reach to the server
-          setError(error.message);
-        }
+        setError(error.message);
       }
     } else {
       console.log("You chose not to delete the post!");
     }
   };
 
-  const handleEditPost = (updatePost) => {
-    const updatedPosts = posts.map((post) =>
-      post.id === updatePost.id ? updatePost : post
-    );
-    setPosts(updatedPosts);
+  const handleEditPost = async (updatePost) => {
+    try {
+      const response = await api.patch(`/post/${updatePost.id}`, updatePost);
+
+      const updatedPosts = posts.map((post) =>
+        post.id === response.data.id ? response.data : post
+      );
+      setPosts(updatedPosts);
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/post");
+        const response = await api.get("/post");
         if (response && response.data) {
           setPosts(response.data);
         }
       } catch (error) {
-        if (error.response) {
-          // error came from the server
-          setError(
-            `Error from server: status ${error.response.status} - message ${error.response.data}`
-          );
-        } else {
-          // network error, did not reach to the server
-          setError(error.message);
-        }
+        setError(error.message);
       }
     };
     fetchPosts();
