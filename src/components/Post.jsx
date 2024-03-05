@@ -2,8 +2,8 @@
 export default function Posts({ posts, onDeletePost, onEditClick }) {
     return (
         <div>
-            <h2>All Posts</h2>
-            <div>
+            <h2 className=" text-xl p-4">All Posts</h2>
+            <div className="ml-11 mb-4">
                 <ul>
                     {posts.map((post) => (
                         <li key={post.id}>

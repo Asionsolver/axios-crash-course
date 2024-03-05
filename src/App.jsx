@@ -54,12 +54,19 @@ export default function App() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await api.get("/post");
+        const response = await api.get("/posts");
+        // console.log(response)
         if (response && response.data) {
           setPosts(response.data);
         }
-      } catch (error) {
-        setError(error.message);
+      } catch (error){
+        if (error.response) {
+          setError(`Error from server: status: ${error.response.status} - Message: Data ${error.response.statusText}`);
+          // console.log(error)
+         
+        } else {
+          setError(error.message);
+        }
       }
     };
     fetchPosts();
@@ -67,8 +74,8 @@ export default function App() {
 
   return (
     <div>
-      <div>
-        <h1>API Request with Axios</h1>
+      <div className="ml-4">
+        <h1 className=" text-3xl p-4 ">API Request with Axios</h1>
         <hr />
 
         <div>
